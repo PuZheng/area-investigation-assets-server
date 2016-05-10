@@ -8,16 +8,27 @@ var error = require('koa-error');
 var koaLogger = require('koa-bunyan');
 var router  = require('koa-router')();
 var mkdirp = require('mkdirp');
+var utils = require('./utils.js');
 
 router.post('/upload', function *(next) {
-    var parts = parse(this);
-    var part;
-    var paths = [];
+    var parts = parse(this), part, paths = [], username = "", orgCode = "";
     while ((part = yield parts)) {
-        if (!part.length) {
-            logger.info(part.filename);
+        if (part.length) {
+            switch (part[0]) {
+                case 'username':
+                    username = part[1];
+                    break;
+                case 'orgCode':
+                    orgCode = part[1];
+                    break;
+                default:
+                    break;
+            }
+        } else {
             // part is stream
-            var stream = fs.createWriteStream(path.join(config.get('assetDir'), part.filename));
+            let dirPath = path.join(config.get('assetDir'), orgCode, username);
+            yield utils.assertDir(dirPath);
+            let stream = fs.createWriteStream(path.join(dirPath, part.filename));
             logger.info('uploading %s', stream.path);
             part.pipe(stream);
             paths.push(stream.path);
