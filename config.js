@@ -7,6 +7,12 @@ var conf = convict({
         default: "development",
         env: "NODE_ENV"
     },
+    slow: {
+        doc: 'network slow',
+        format: Number,
+        default: 1000,
+        env: 'SLOW'
+    },
     port: {
         doc: 'listening port',
         format: 'port',

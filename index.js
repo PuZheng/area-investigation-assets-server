@@ -1,14 +1,15 @@
-var koa = require('koa');
-var config = require('./config.js');
-var parse = require('co-busboy');
-var path = require('path');
-var fs = require('fs');
-var logger = require('./logger.js');
-var error = require('koa-error');
-var koaLogger = require('koa-bunyan');
-var router  = require('koa-router')();
-var mkdirp = require('mkdirp');
-var utils = require('./utils.js');
+var koa = require('koa')
+    ,config = require('./config.js')
+    ,parse = require('co-busboy')
+    ,path = require('path')
+    ,fs = require('fs')
+    ,logger = require('./logger.js')
+    ,error = require('koa-error')
+    ,koaLogger = require('koa-bunyan')
+    ,router  = require('koa-router')()
+    ,mkdirp = require('mkdirp')
+    ,utils = require('./utils.js')
+    ,slow = require('koa-slow');
 
 router.post('/upload', function *(next) {
     var parts = parse(this), part, paths = [], username = "", orgCode = "";
@@ -50,8 +51,13 @@ if (require.main === module) {
             throw e;
         }
     } 
-    koa()
-    .use(koaLogger(logger, {
+    var app = koa();
+    if (config.get('env') == 'development') {
+        app.use(slow({
+            delay: config.get('slow')
+        }));
+    }
+    app.use(koaLogger(logger, {
         // which level you want to use for logging?
         // default is info
         level: 'info',
