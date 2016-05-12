@@ -51,6 +51,15 @@ if (require.main === module) {
             throw e;
         }
     } 
+    try {
+        fs.statSync(config.get('logDir'));
+    } catch (e) {
+        if (e.code === 'ENOENT') {
+            mkdirp.sync(config.get('logDir'));
+        } else {
+            throw e;
+        }
+    } 
     var app = koa();
     if (config.get('env') == 'development') {
         app.use(slow({

@@ -24,6 +24,12 @@ var conf = convict({
         format: String,
         default: 'assets',
         env: 'ASSET_DIR'
+    },
+    logDir: {
+        doc: 'log directory',
+        format: String,
+        default: 'logs',
+        env: 'LOG_DIR'
     }
 });
 
